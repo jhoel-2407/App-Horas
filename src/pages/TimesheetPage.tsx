@@ -115,13 +115,14 @@ export default function TimesheetPage({ readOnly = false }: Props) {
         )}
       </main>
 
-      {!readOnly && modalDate && (
+      {modalDate && (
         <DayModal
           date={modalDate}
           initial={modalLog}
           onSave={handleSave}
           onDelete={handleDelete}
           onClose={() => setModalDate(null)}
+          readOnly={readOnly}
         />
       )}
     </div>

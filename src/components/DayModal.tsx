@@ -9,9 +9,10 @@ interface Props {
   onSave: (log: WorkLog) => Promise<void>;
   onDelete: () => Promise<void>;
   onClose: () => void;
+  readOnly?: boolean;
 }
 
-export default function DayModal({ date, initial, onSave, onDelete, onClose }: Props) {
+export default function DayModal({ date, initial, onSave, onDelete, onClose, readOnly = false }: Props) {
   const [entry, setEntry] = useState(initial?.entry_time ?? '');
   const [exit, setExit] = useState(initial?.exit_time ?? '');
   const [lunch, setLunch] = useState(String(initial?.lunch_minutes ?? 60));
@@ -66,7 +67,7 @@ export default function DayModal({ date, initial, onSave, onDelete, onClose }: P
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold">Registro del día {date}</h2>
+          <h2 className="text-lg font-bold">{readOnly ? 'Detalle del día' : 'Registro del día'} {date}</h2>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600 text-xl">✕</button>
         </div>
         <div className="space-y-4">
@@ -76,7 +77,8 @@ export default function DayModal({ date, initial, onSave, onDelete, onClose }: P
               type="time"
               value={entry}
               onChange={(e) => setEntry(e.target.value)}
-              className="w-full border rounded-lg px-3 py-2"
+              disabled={readOnly}
+              className="w-full border rounded-lg px-3 py-2 disabled:bg-slate-100"
             />
           </div>
           <div>
@@ -85,7 +87,8 @@ export default function DayModal({ date, initial, onSave, onDelete, onClose }: P
               type="time"
               value={exit}
               onChange={(e) => setExit(e.target.value)}
-              className="w-full border rounded-lg px-3 py-2"
+              disabled={readOnly}
+              className="w-full border rounded-lg px-3 py-2 disabled:bg-slate-100"
             />
           </div>
           <div>
@@ -95,7 +98,8 @@ export default function DayModal({ date, initial, onSave, onDelete, onClose }: P
               min={0}
               value={lunch}
               onChange={(e) => setLunch(e.target.value)}
-              className="w-full border rounded-lg px-3 py-2"
+              disabled={readOnly}
+              className="w-full border rounded-lg px-3 py-2 disabled:bg-slate-100"
             />
           </div>
           <div className="flex items-center gap-2">
@@ -104,6 +108,7 @@ export default function DayModal({ date, initial, onSave, onDelete, onClose }: P
               id="isHoliday"
               checked={isHoliday}
               onChange={(e) => setIsHoliday(e.target.checked)}
+              disabled={readOnly}
               className="w-4 h-4"
             />
             <label htmlFor="isHoliday" className="text-sm font-medium">
@@ -115,7 +120,8 @@ export default function DayModal({ date, initial, onSave, onDelete, onClose }: P
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full border rounded-lg px-3 py-2"
+              disabled={readOnly}
+              className="w-full border rounded-lg px-3 py-2 disabled:bg-slate-100"
               rows={2}
             />
           </div>
@@ -125,31 +131,35 @@ export default function DayModal({ date, initial, onSave, onDelete, onClose }: P
           {error && <div className="text-red-600 text-sm">{error}</div>}
         </div>
         <div className="flex gap-2 mt-6">
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="flex-1 bg-blue-600 text-white rounded-lg py-2 font-semibold hover:bg-blue-700 disabled:opacity-50"
-          >
-            {saving ? 'Guardando...' : 'Guardar'}
-          </button>
-          {initial && (
-            <button
-              onClick={async () => {
-                if (confirm('¿Eliminar registro de este día?')) {
-                  await onDelete();
-                  onClose();
-                }
-              }}
-              className="px-4 bg-red-100 text-red-700 rounded-lg py-2 font-semibold hover:bg-red-200"
-            >
-              Eliminar
-            </button>
+          {!readOnly && (
+            <>
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="flex-1 bg-blue-600 text-white rounded-lg py-2 font-semibold hover:bg-blue-700 disabled:opacity-50"
+              >
+                {saving ? 'Guardando...' : 'Guardar'}
+              </button>
+              {initial && (
+                <button
+                  onClick={async () => {
+                    if (confirm('¿Eliminar registro de este día?')) {
+                      await onDelete();
+                      onClose();
+                    }
+                  }}
+                  className="px-4 bg-red-100 text-red-700 rounded-lg py-2 font-semibold hover:bg-red-200"
+                >
+                  Eliminar
+                </button>
+              )}
+            </>
           )}
           <button
             onClick={onClose}
             className="px-4 bg-slate-100 rounded-lg py-2 font-semibold hover:bg-slate-200"
           >
-            Cancelar
+            {readOnly ? 'Cerrar' : 'Cancelar'}
           </button>
         </div>
       </div>

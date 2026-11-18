@@ -46,8 +46,12 @@ export default function Calendar({ year, month, readOnly, onDayClick, summary }:
           return (
             <button
               key={key}
-              onClick={() => !readOnly && !isWeekend && onDayClick(key)}
-              disabled={readOnly || isWeekend}
+              onClick={() => {
+                if (isWeekend) return;
+                if (readOnly && !(calc?.entry || calc?.exit)) return;
+                onDayClick(key);
+              }}
+              disabled={isWeekend}
               className={`h-20 rounded-lg border text-left p-1 text-xs transition ${
                 isWeekend
                   ? 'bg-slate-100 text-slate-400'
